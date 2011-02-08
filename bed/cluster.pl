@@ -19,7 +19,7 @@ my %chroms;
 for(my $i = 0; $i <= $#files; $i++) {
 	open(FILE, $files[$i]);
 	while(<FILE>) {
-		if (/^(chr\d+)\s+(\d+)\s+(\d+).*$/) {
+		if (/^(chr[^\t]+)\t(\d+)\t(\d+).*/) {
 			my $s;
 			$s->{'n'} = $names[$i];
 			$s->{'t'} = 's';
