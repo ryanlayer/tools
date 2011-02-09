@@ -19,8 +19,7 @@ OPTIONS
   --universe       Universe considered
   --num-intervals  Number of intervals to create
   --seed           Random seed
-  --size           Median interval size (default 250)
-  --stdev          Interval size standard deviation (default 10)
+  --size           Interval size (default 250)
 
 EOF
 }
@@ -28,13 +27,13 @@ EOF
 my $universe_file;
 my $N;
 my $help = 0;
+my $size = 250;
 my $rand_seed = time ^ $$ ^ unpack "%L*", `ps axww | gzip -f`;
 
 GetOptions ("num-intervals=i"	=> \$N,	
 			"universe=s"		=> \$universe_file,
 			"seed=i"			=> \$rand_seed,
-			"size=i"			=> \$rand_seed,
-			"stdev=i"			=> \$rand_seed,
+			"size=i"			=> \$size,
 			"h"					=> \$help) or print_usage(); 
 
 print_usage() if $help;
@@ -63,8 +62,6 @@ my @keys = sort {$a <=> $b} keys %{$U};
 for (my $i = 0; $i < $N; $i++) {
 
 	my $R = int( rand($next) );
-	my $U_i=0;
-
 	my $hit = 0;
 
 	for (my $j = 0; $j < $#keys; $j++) {
@@ -75,9 +72,9 @@ for (my $i = 0; $i < $N; $i++) {
 	}
 
 	my $key = $keys[$hit];
-
+	my $offset = $R - $key;
 
 	print join("\t", $U->{$key}{'c'},
-					 $U->{$key}{'s'},
-					 $U->{$key}{'e'}) . "\n";
+					 $U->{$key}{'s'} + $offset,
+					 $U->{$key}{'e'} + $offset + $size) . "\n";
 }
