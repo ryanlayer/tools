@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+use strict;
+
+my $switch = shift;
+
+my $n = 0;
+my $sum = 0;
+my @X;
+
+while(<STDIN>) {
+	my $line_s = $_;
+	chomp ($line_s);
+	if (!(($line_s == -1) && ($switch == 1))) {
+		push(@X,$line_s);
+		$n++;
+		$sum += $line_s;
+	}
+}
+
+@X = sort(@X);
+
+if ($n == 0) {
+	print 0;
+} else {
+	my $median = 0;
+
+	if (($n % 2) == 0) {
+		$median = ( $X[$n/2] + $X[$n/2-1] ) / 2;
+	} else {
+		$median = $X[$n/2];
+	}
+
+	for(my $i = 0; $i < $n; $i++) {
+		$X[$i] = abs($X[$i] - $median);
+	}
+
+	@X = sort(@X);
+
+	my $mad = 0;
+
+	if (($n % 2) == 0) {
+		$mad = ( $X[$n/2] + $X[$n/2-1] ) / 2;
+	} else {
+		$mad = $X[$n/2];
+	}
+
+	print "median:$median\tmad:$mad\n";
+}

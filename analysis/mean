@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+my $switch = shift;
+
+my $n = 0;
+my $sum = 0;
+my @X;
+
+while(<STDIN>) {
+	my $line_s = $_;
+	chomp ($line_s);
+	if (!(($line_s == -1) && ($switch == 1))) {
+		push(@X,$line_s);
+		$n++;
+		$sum += $line_s;
+	}
+}
+
+$mean = 0;
+
+if ($n != 0) {
+	$mean = $sum/$n;
+}
+
+print "mean:$mean ";
+
+$sum = 0;
+
+$sigma = 0;
+
+if ($n !=0) {
+	for my $x (@X) {
+		$sum += ($x - $mean)**2;
+	}
+	$sigma = sqrt($sum/$n);
+}
+
+print "standard deviation:$sigma\n";

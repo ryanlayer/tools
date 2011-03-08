@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+my $in;
+while (my $i = shift) {
+	$in = $in . " " . $i;
+}
+
+print eval($in) . "\n";

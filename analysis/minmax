@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+use strict;
+
+my $switch = shift;
+
+my $min=99999999999;
+my $max=-99999999999;
+
+while(<STDIN>) {
+	my $line_s = $_;
+	chomp ($line_s);
+	if ($line_s < $min) {
+		$min = $line_s;
+	}
+
+	if ($line_s > $max) {
+		$max = $line_s;
+	}
+}
+
+print "min:$min\tmax:$max\n";

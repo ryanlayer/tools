@@ -48,6 +48,7 @@ open(FILE, $file) or die "Could not open $file.\n$!";
 my $gb = Bio::DB::GenBank->new();
 
 my @stream = ();
+
 my %filter = (
 	"Homo sapiens" => 1,
 	"Gorilla gorilla" => 1,

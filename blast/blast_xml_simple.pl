@@ -44,6 +44,7 @@ print_usage() if not($file);
 open(FILE, $file) or die "Could not open $file.\n$!";
 
 my $query_name = "";
+my $query_id = "";
 my $query_len = 0;
 my $query_match = "";
 
@@ -60,6 +61,8 @@ while (my $l = <FILE>) {
 	chomp($l);
 	if ($l =~ /<Iteration_query-def>(.*)<\/Iteration_query-def>/) {
 		$query_name = $1;
+	} elsif ($l =~ /<Iteration_iter-num>(.*)<\/Iteration_iter-num>/) {
+		$query_id = $1;
 	} elsif ($l =~ /<Iteration_query-len>(.*)<\/Iteration_query-len>/) {
 		$query_len = $1;
 	} elsif ($l =~ /<Hit_id>gi\|([^\|]+)\|.*<\/Hit_id>/) {
@@ -81,7 +84,9 @@ while (my $l = <FILE>) {
 	} elsif ($l =~ /<\/Hit>/) {
 		if ( ( ($hit_len / $query_len) >= $len_min) &&
 			 ( ($hit_id / $hit_len) >= $id_min) ) {
-			 print join("\t", $query_len,
+			 print join("\t", 
+							  $query_id,
+							  $query_len,
 							  $hit_len,
 							  $hit_id,
 							  $hit_num,

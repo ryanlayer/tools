@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+use strict;
+
+my %bins;
+my $count = 0;
+
+while(<STDIN>) {
+	my $line_s = $_;
+	chomp($line_s);
+
+	if ( not defined($bins{$line_s}) ) {
+		$bins{$line_s} = 1;
+	} else {
+		$bins{$line_s} = $bins{$line_s} + 1;
+	}
+	$count++;
+}
+
+foreach my $bin (keys %bins) {
+	print "$bins{$bin}\t" . ($bins{$bin} / $count) . "\t$bin\n";
+}

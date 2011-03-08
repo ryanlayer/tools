@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+use POSIX qw(ceil floor);
+
+# Perl doesn't have round, so let's implement it
+sub round {
+	my($number) = shift;
+	return int($number + .5 * ($number <=> 0));
+}
+sub histogram {
+	my ($bin_width, @list) = @_;
+
+	# This calculates the frequencies for all available bins in the data set
+	my %histogram;
+	$histogram{ceil(($_ + 1) / $bin_width) -1}++ for @list;
+
+	my $max;
+	my $min;
+
+	# Calculate min and max
+	while ( my ($key, $value) = each(%histogram)) {
+		$max = $key if !defined($min) || $key > $max;
+		$min = $key if !defined($min) || $key < $min;
+	}
+
+	for (my $i = $min; $i <= $max; $i++) {
+		#my $bin = sprintf("%10d", ($i) * $bin_width);
+	my $bin = ($i) * $bin_width;
+	my $frequency = $histogram{$i} || 0;
+	#$frequency = "#" x $frequency;
+	print $bin."\t".$frequency."\n"; 
+	}
+	#print "===============================\n\n";
+	#print " Width: ".$bin_width."\n";
+	#print " Range: ".$min."-".$max."\n\n";
+}
+
+
+my $bin_size = shift;
+chomp($bin_size);
+
+my @X;
+
+while(<STDIN>) {
+	my $line_s = $_;
+	chomp ($line_s);
+	if (!(($line_s == -1) && ($switch == 1))) {
+		push(@X,$line_s);
+	}
+}
+
+histogram($bin_size, @X);
