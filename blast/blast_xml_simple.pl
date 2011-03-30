@@ -11,7 +11,10 @@ USAGE
   $prog [options]
 
 DESCRIPTION
-  Give the distances between regions in a bed file.
+  Extract hits from blast XML that have that mean the min hit length and 
+  identity.  Each line containsthe following columns:
+
+  query id, query len, hit len, hit id, hit num, hit gi, hit name
 
 OPTIONS
   -h              Print this help message
