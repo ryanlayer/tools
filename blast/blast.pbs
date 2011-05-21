@@ -1,0 +1,23 @@
+#!/bin/bash
+#PBS -l select=1:mem=4000m:ncpus=4
+#PBS -l walltime=5:00:00
+#PBS -j oe
+#PBS -m ae
+#PBS -M rl6sf@virginia.edu
+
+BLAST=/net/dutta_tumor/src/ncbi-blast-2.2.24+/bin/blastn
+QUERY=/net/dutta_tumor/data/prostate_cancer/WPE1NB26/contigs.NM.fa
+OUT=/net/dutta_tumor/data/prostate_cancer/WPE1NB26/contigs.NM.blast.out
+
+$BLAST \
+	-db /net/dutta_tumor/ref/blast/human_genomic \
+	-query $QUERY \
+	-evalue 0.001 \
+	-out $OUT \
+	-outfmt 5 \
+	-num_threads 4 \
+	-num_descriptions 10 \
+	-num_alignments 10
+
+
+
