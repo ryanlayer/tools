@@ -55,10 +55,19 @@ while (my $l = <XML_FILE>) {
 }
 close(XML_FILE);
 
+my $f = 0;
+
 while (my $l = <FASTA_FILE>) {
 	chomp($l);
-	if (defined $nodes{$l}) {
-		print <FASTA_FILE>;
+	if ($l =~ /^>/) {
+		if ( defined($nodes{$l}) ) {
+			print "$l\n";
+			$f = 1;
+		} else {
+			$f = 0;
+		}
+	} elsif ($f == 1) {
+		print "$l\n";
 	}
 }
 
