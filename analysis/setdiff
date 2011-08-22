@@ -1,0 +1,65 @@
+#!/usr/bin/perl -w
+use strict;
+use Getopt::Long;
+use File::Basename;
+my $prog = basename($0);
+
+sub print_usage {
+    warn <<"EOF";
+
+USAGE
+  $prog [options]
+
+DESCRIPTION
+  Return the set difference:  A - B
+
+OPTIONS
+  -h            Print this help message
+  --A   name    file A 
+  --B   name    file B
+  --col num     Column (default 1)
+  --sep pattern Charater seperating fields (defualt <tab>)
+EOF
+	exit;
+}
+
+my $file_name_A;
+my $file_name_B;
+my $col = 1;
+my $sep = "\t";
+my $help = 0;
+
+GetOptions ("A=s"	=> \$file_name_A,		# string
+			"B=s"		=> \$file_name_B,
+			"col=i"		=> \$col,
+			"sep=s"		=> \$sep,
+			"h"			=> \$help) or print_usage(); 
+
+print_usage() if $help;
+print_usage() if not($file_name_A);
+print_usage() if not($file_name_B);
+
+#adjust col for zero base
+$col = $col - 1;
+
+open(FILE, $file_name_B) or die "Could not open $file_name_B.\n$!";
+
+my %B;
+
+while (my $l = <FILE>) {
+	chomp($l);
+	my @a = split ($sep, $l);
+    $B{$a[$col]} = 1;
+}
+close(FILE);
+
+open(FILE, $file_name_A) or die "Could not open $file_name_A.\n$!";
+
+while (my $l = <FILE>) {
+	chomp($l);
+	my @a = split ($sep, $l);
+    if (not defined $B{$a[$col]}) {
+        print "$a[$col]\n";
+    }
+}
+close(FILE);

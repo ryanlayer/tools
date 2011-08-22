@@ -19,25 +19,18 @@ DESCRIPTION
 OPTIONS
   -h              Print this help message
   --file     name File we want use
-  --length   min  Minium hit length/query length (default 0.9)
-  --identity  min Minium hit /identity hit length (default 0.9)
-  --verbose       Show allignment
-
+  --id       id	  Query id 
 EOF
 
 	exit;
 }
 
 my $file;
-my $len_min=0.9;
-my $id_min=0.9;
-my $verbose;
+my $id;
 my $help = 0;
 
 GetOptions ("file=s"	=> \$file,		# string
-			"length=i"	=> \$len_min,
-			"identity=i"	=> \$id_min,
-			"verbose"	=> \$verbose,
+			"id=i"	=> \$id,
 			"h"			=> \$help) or print_usage(); 
 
 print_usage() if $help;
@@ -59,6 +52,8 @@ my $hit_match = "";
 my $hit_len = 0;
 my $hit_id = 0;
 my $hit_id_gi = 0;
+my $hit_from = 0;
+my $hit_to = 0;
 
 while (my $l = <FILE>) {
 	chomp($l);
@@ -84,25 +79,28 @@ while (my $l = <FILE>) {
 		$hit_id = $1;
 	} elsif ($l =~ /<Hsp_midline>(.*)<\/Hsp_midline>/) {
 		$both_match = $1;
+	} elsif ($l =~ /<Hsp_hit-from>(.*)<\/Hsp_hit-from>/) {
+		$hit_from = $1;
+	} elsif ($l =~ /<Hsp_hit-to>(.*)<\/Hsp_hit-to>/) {
+		$hit_to = $1;
 	} elsif ($l =~ /<\/Hit>/) {
-		if ( ( ($hit_len / $query_len) >= $len_min) &&
-			 ( ($hit_id / $hit_len) >= $id_min) ) {
+		if ( $query_id == $id ) { 
 			 print join("\t", 
 							  $query_id,
 							  $query_len,
 							  $hit_len,
 							  $hit_id,
 							  $hit_num,
+							  $hit_from,
+							  $hit_to,
 							  $hit_id_gi,
-							  $hit_name);
-			if ($verbose) {
+							  $hit_name,
+							  );
 				print "\t" . join("\t", 
 								$query_match,
-								$hit_match,
-								$both_match);
+								$both_match,
+								$hit_match);
 	
-			}
-
 			print "\n";
 
 		 }
