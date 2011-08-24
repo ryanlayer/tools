@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+use strict;
+
+my %comp = (
+		"A" => "T",
+		"T" => "A",
+		"G" => "C",
+		"C" => "G"
+	);
+
+
+sub rev {
+	my ($seq) = @_;
+	chomp($seq);
+
+	my $rev_comp = "";
+
+	foreach my $s ( split(//,$seq) ) {
+		$rev_comp = $comp{$s} . $rev_comp;
+	}
+
+	return $rev_comp;
+}
+
+
+if ( $#ARGV + 1 < 1 ) {
+	while(<STDIN>) {
+		print rev($_) . "\n";
+	}
+} else {
+		print rev(shift) . "\n";
+}
