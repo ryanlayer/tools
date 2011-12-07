@@ -106,4 +106,6 @@ grep "^$CHR" $FILENAME | \
 		OFS="\t";
 		if ($3 > (start-width) && $2 < (end+width)) 
 			print;
+		if ($3 > (end+width))
+			exit;
 	}' 

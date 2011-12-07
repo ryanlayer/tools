@@ -1,0 +1,98 @@
+#!/usr/bin/perl -w
+use strict;
+use Getopt::Long;
+use File::Basename;
+use Statistics::Descriptive;
+my $prog = basename($0);
+
+sub print_usage {
+	my ($msg) = @_;
+    warn <<"EOF";
+
+$msg
+
+USAGE
+  $prog [options]
+
+DESCRIPTION
+  Aggregate values of each key
+
+OPTIONS
+  -h              Print this help message
+  --file  name    File we want use
+  --key   col_num Column of key (default 1)
+  --val   col_num Column of value (default 2)
+  --agg   funtion Aggregation function (max, min, mean, median, stdev)
+  --sep   pattern Charater seperating fields (defualt <tab>)
+
+EOF
+	exit;
+}
+
+my $file;
+my $key_col = 1;
+my $val_col = 2;
+my $sep = "\t";
+my $agg;
+my $help = 0;
+
+GetOptions ("file=s"	=> \$file,		# string
+			"key=i"		=> \$key_col,
+			"val=i"		=> \$val_col,
+			"agg=s"		=> \$agg,
+			"sep=s"		=> \$sep,
+			"h"			=> \$help) or print_usage(); 
+
+print_usage() if $help;
+
+print_usage("No file") if not($file);
+print_usage("No aggregation") if not($agg);
+
+#### zero base cols
+$key_col--;
+$val_col--;
+
+open(FILE, $file) or die "Could not open $file.\n$!";
+
+my %keys;
+
+while (my $l = <FILE>) {
+	chomp($l);
+	my @a = split ($sep, $l);
+
+	my $key = $a[$key_col];
+	my $val = $a[$val_col];
+
+	#print "\t$key\n\t$val\n";
+
+	if (not defined($keys{$key})) {
+		my @b;
+		$keys{$key} = \@b;
+	}
+
+	push(@{$keys{$key}}, $val);
+}
+
+foreach my $key (keys %keys) {
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@{$keys{$key}});
+	my $out;
+	if ($agg eq "max") {
+		$out = $stat->max();
+	} elsif ($agg eq "min") {
+		$out = $stat->min();
+	} elsif ($agg eq "stdev") {
+		$out = $stat->standard_deviation();
+	} elsif ($agg eq "mean") {
+		$out = $stat->mean();
+	} elsif ($agg eq "median") {
+		$out = $stat->median();
+	} elsif ($agg eq "count") {
+		$out = $stat->count();
+	} else {
+		print "Aggregation function $agg unknown\n";
+		exit;
+	}
+
+	print $key . $sep . $out . "\n";
+}
