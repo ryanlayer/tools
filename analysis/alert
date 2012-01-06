@@ -1,0 +1,2 @@
+#!/bin/bash
+date | mail -s "$1" rl6sf@virginia.edu
