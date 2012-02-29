@@ -29,14 +29,14 @@ EOF
 }
 
 my $file;
-my $len_min=0.9;
-my $id_min=0.9;
+my $len_min=0.0;
+my $id_min=0.0;
 my $verbose;
 my $help = 0;
 
 GetOptions ("file=s"	=> \$file,		# string
-			"length=i"	=> \$len_min,
-			"identity=i"	=> \$id_min,
+			"length=s"	=> \$len_min,
+			"identity=s"	=> \$id_min,
 			"verbose"	=> \$verbose,
 			"h"			=> \$help) or print_usage(); 
 
