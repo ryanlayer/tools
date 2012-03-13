@@ -1,0 +1,75 @@
+#!/bin/sh
+
+############################################################
+#  Program:
+#  Author :
+############################################################
+
+
+## BEGIN SCRIPT
+usage()
+{
+    cat << EOF
+
+usage: $0 OPTIONS
+
+OPTIONS can be:
+  -h  Show this message
+  -m  mem      Memory (default 3g)
+  -t  threads  Threads per device (default 1)
+  -d  devices  Devices (default 1)
+  -n  name     Name (default quick_q)
+  -c  cmd      Command
+EOF
+}
+
+# Show usage when there are no arguments.
+if test -z "$1"
+then
+    usage
+    exit
+fi
+
+MEM="1g"
+NAME="quick_q"
+THREADS=1
+DEVICE=1
+CMD=1
+
+# Check options passed in.
+while getopts "h m:t:n:c:d:" OPTION
+do
+    case $OPTION in
+        h)
+            usage
+            exit 1
+            ;;
+        m)
+            MEM=$OPTARG
+            ;;
+        t)
+            THREADS=$OPTARG
+            ;;
+        d)
+            DEVICE=$OPTARG
+            ;;
+        n)
+            NAME=$OPTARG
+            ;;
+        c)
+            CMD=$OPTARG
+            ;;
+        ?)
+            usage
+            exit
+            ;;
+    esac
+done
+
+QSUB="/usr/pbs/bin/qsub"
+QSUB_CMD="$QSUB -l select=$DEVICE:mem=$MEM:ncpus=$THREADS -m bae -N $NAME -M rl6sf@virginia.edu"
+JID=`echo "cd \\$PBS_O_WORKDIR; $CMD" | $QSUB_CMD`
+DATE=`date +%Y%m%d_%T`
+echo $DATE > $APP.$JID.log
+echo $JID >> $APP.$JID.log
+echo $CMD >> $APP.$JID.log
