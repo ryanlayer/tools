@@ -4,7 +4,10 @@ my $sum = 0;
 while(<STDIN>) {
 	my $line = $_;
 	chomp($line);
-	$sum += $line;
+	my @as = split(/\s/, $line);
+	foreach my $a (@as) {
+		$sum += $a;
+	}
 }
 
 print "$sum\n";

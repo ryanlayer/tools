@@ -1,0 +1,96 @@
+#!/usr/bin/perl -w
+use strict;
+use Getopt::Long;
+use File::Basename;
+use Statistics::Descriptive;
+my $prog = basename($0);
+
+sub print_usage {
+	my ($msg) = @_;
+    warn <<"EOF";
+
+$msg
+
+USAGE
+  $prog [options]
+
+DESCRIPTION
+  Select a radom subset
+	
+OPTIONS
+  -h                  Print this help message
+  --file  name        File we want use
+  --N     number      Size of random set
+
+EOF
+	exit;
+}
+
+my $file;
+my $N;
+my $help = 0;
+
+GetOptions ("file=s"	=> \$file,		# string
+			"N=i"		=> \$N,
+			"h"			=> \$help) or print_usage(); 
+
+print_usage() if $help;
+
+print_usage("No file") if not($file);
+print_usage("No N") if not($N);
+
+
+my $file_len;
+
+open(FILE, $file) or die "Could not open $file.\n$!";
+while (my $l = <FILE>) {
+	$file_len++;
+}
+close(FILE);
+
+my @vals;
+
+while (my $l = <FILE>) {
+	chomp($l);
+	my @a = split ($sep, $l);
+	push(@vals, $a[$val_col]);
+}
+
+close(FILE);
+
+my $size = @vals;
+
+my $count = 0;
+my @R;
+
+for (my $i = 0; $i < $I; $i++){
+	my $c = 0;
+	for (my $j = 0; $j < $N; $j++){
+		my $r = int(rand($size));
+		if ($vals[$r] >= $T) {
+			$c++;
+		}
+	}
+
+	push(@R, $c);
+
+	if ($c >= $O) {
+		$count++;
+	}
+}
+my $stat = Statistics::Descriptive::Full->new();
+$stat->add_data(@R);
+my $mean = $stat->mean();
+my $stdev = $stat->standard_deviation();
+
+my $p =( ($count+1) / ($I + 1) );
+
+print join("\t", "I:". $I,
+				 "O:" . $O,
+				 "R:" . $count,
+				 "mean:" . $mean,
+				 "stdev:" . $stdev,
+				 "p:" . $p) 
+		. "\n";
+
+

@@ -10,9 +10,12 @@ while(<STDIN>) {
 	my $line_s = $_;
 	chomp ($line_s);
 	if (!(($line_s == -1) && ($switch == 1))) {
-		push(@X,$line_s);
-		$n++;
-		$sum += $line_s;
+		my @as = split(/\s/, $line_s);
+		foreach my $a (@as) {
+			push(@X,$a);
+			$n++;
+			$sum += $a;
+		}
 	}
 }
 

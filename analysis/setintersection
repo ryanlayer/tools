@@ -11,7 +11,7 @@ USAGE
   $prog [options]
 
 DESCRIPTION
-  Return the set difference:  A - B
+  Return the set intersection:  A & B
 
 OPTIONS
   -h            Print this help message
