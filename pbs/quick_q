@@ -23,6 +23,7 @@ OPTIONS can be:
   -n  name     Name (default quick_q)
   -c  cmd      Command
   -q  queue    Queue name
+  -W  attr     Additional attributes
 EOF
 }
 
@@ -33,16 +34,17 @@ then
     exit
 fi
 
-MEM="1g"
+MEM="4g"
 NAME="quick_q"
 THREADS=1
 DEVICE=1
 CMD=1
 QUEUE=
+ATTRS=
 NODES=
 
 # Check options passed in.
-while getopts "h m:t:n:c:d:q:l:" OPTION
+while getopts "h m:t:n:c:d:q:l:W:" OPTION
 do
     case $OPTION in
         h)
@@ -67,6 +69,9 @@ do
         q)
             QUEUE=$OPTARG
             ;;
+        W)
+            ATTRS=$OPTARG
+            ;;
         ?)
             usage
             exit
@@ -75,17 +80,23 @@ do
 done
 
 #QSUB="/usr/pbs/bin/qsub"
-QSUB=/usr/local/bin/qsub
+QSUB=qsub
 
 # for pbs_version = PBSPro_11.2.0.113417
 #QSUB_CMD="$QSUB -l select=$DEVICE:mem=$MEM:ncpus=$THREADS -m bae -N $NAME -M rl6sf@virginia.edu"
 # for version: 3.0.3
-QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS -m abe -N $NAME"
+QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS,mem=$MEM -m abe -N $NAME"
 
 if [ ! -z $QUEUE ]
 then
 	QSUB_CMD="$QSUB_CMD -q $QUEUE"
 fi
+
+if [ ! -z $ATTRS ]
+then
+	QSUB_CMD="$QSUB_CMD -W $ATTRS"
+fi
+
 
 #echo $QSUB_CMD
 
