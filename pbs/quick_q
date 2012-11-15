@@ -24,6 +24,8 @@ OPTIONS can be:
   -c  cmd      Command
   -q  queue    Queue name
   -W  attr     Additional attributes
+  -Q		   Run in quite mode
+  -M		   Mail results
 EOF
 }
 
@@ -42,14 +44,22 @@ CMD=1
 QUEUE=
 ATTRS=
 NODES=
+QUITE=
+MAIL=
 
 # Check options passed in.
-while getopts "h m:t:n:c:d:q:l:W:" OPTION
+while getopts "h m:t:n:c:d:q:l:W:Q M" OPTION
 do
     case $OPTION in
         h)
             usage
             exit 1
+            ;;
+        M)
+            MAIL=1
+            ;;
+        Q)
+            QUITE=1
             ;;
         m)
             MEM=$OPTARG
@@ -85,7 +95,18 @@ QSUB=qsub
 # for pbs_version = PBSPro_11.2.0.113417
 #QSUB_CMD="$QSUB -l select=$DEVICE:mem=$MEM:ncpus=$THREADS -m bae -N $NAME -M rl6sf@virginia.edu"
 # for version: 3.0.3
-QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS,mem=$MEM -m abe -N $NAME"
+
+QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS,mem=$MEM -N $NAME"
+
+if [ ! -z $MAIL ]
+then
+	QSUB_CMD="$QSUB_CMD -m abe"
+fi
+
+if [ ! -z $QUITE ]
+then
+	QSUB_CMD="$QSUB_CMD -e /dev/null -o /dev/null"
+fi
 
 if [ ! -z $QUEUE ]
 then
@@ -102,7 +123,10 @@ fi
 
 JID=`echo "cd \\$PBS_O_WORKDIR; $CMD" | $QSUB_CMD`
 echo $JID
-DATE=`date +%Y%m%d_%T`
-echo $DATE > $JID.log
-echo $JID >> $JID.log
-echo $CMD >> $JID.log
+if [ -z $QUITE ]
+then
+	DATE=`date +%Y%m%d_%T`
+	echo $DATE > $JID.log
+	echo $JID >> $JID.log
+	echo $CMD >> $JID.log
+fi
