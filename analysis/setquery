@@ -78,7 +78,7 @@ while (my $l = <FILE>) {
 	my @a = split ($sep, $l);
 
 	if (defined $db{$a[$db_col]}) {
-		foreach $r ( @{$db{$a[$db_col]}} ) {
+		foreach my $r ( @{$db{$a[$db_col]}} ) {
 			print $r ."\n";
 		}
 	}
