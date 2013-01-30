@@ -54,7 +54,6 @@ print_usage("No query column") if not($q_col);
 $db_col--;
 $q_col--;
 
-open(FILE, $q_file) or die "Could not open $q_file.\n$!";
 
 my %db;
 
@@ -73,12 +72,14 @@ while (my $l = <FILE>) {
 
 close(FILE);
 
+open(FILE, $q_file) or die "Could not open $q_file.\n$!";
+
 while (my $l = <FILE>) {
 	chomp($l);
 	my @a = split ($sep, $l);
 
-	if (defined $db{$a[$db_col]}) {
-		foreach my $r ( @{$db{$a[$db_col]}} ) {
+	if (defined $db{$a[$q_col]}) {
+		foreach my $r ( @{$db{$a[$q_col]}} ) {
 			print $r ."\n";
 		}
 	}
