@@ -1,0 +1,88 @@
+#!/usr/bin/perl -w
+use strict;
+use Getopt::Long;
+use File::Basename;
+use Statistics::Descriptive;
+my $prog = basename($0);
+
+sub print_usage {
+	my ($msg) = @_;
+    warn <<"EOF";
+
+$msg
+
+USAGE
+  $prog [options]
+
+DESCRIPTION
+  Find lines matching a query list
+
+OPTIONS
+  -h                Print this help message
+  --db     file     Database file name
+  --db_key col_num  Column containing key
+  --q      file	    Query file name
+  --q_key  col_num  Column containing key 
+  --sep   pattern Charater seperating fields (defualt <tab>)
+
+EOF
+	exit;
+}
+
+my $db_file;
+my $db_col;
+my $q_file;
+my $q_col;
+my $sep = "\t";
+my $help = 0;
+
+GetOptions ("db=s"		=> \$db_file,		# string
+			"db_key=i"	=> \$db_col,
+			"q=s"		=> \$q_file,		# string
+			"q_key=i"	=> \$q_col,
+			"sep=s"		=> \$sep,
+			"h"			=> \$help) or print_usage(); 
+
+print_usage() if $help;
+
+print_usage("No database file") if not($db_file);
+print_usage("No query file") if not($db_col);
+print_usage("No database column") if not($q_file);
+print_usage("No query column") if not($q_col);
+
+#### zero base cols
+$db_col--;
+$q_col--;
+
+open(FILE, $q_file) or die "Could not open $q_file.\n$!";
+
+my %db;
+
+open(FILE, $db_file) or die "Could not open $db_file.\n$!";
+
+while (my $l = <FILE>) {
+	chomp($l);
+	my @a = split ($sep, $l);
+
+	if (not defined $db{$a[$db_col]}) {
+		my @b;
+		$db{$a[$db_col]} = \@b;
+	}
+	push(@{$db{$a[$db_col]}},$l);
+}
+
+close(FILE);
+
+while (my $l = <FILE>) {
+	chomp($l);
+	my @a = split ($sep, $l);
+
+	if (defined $db{$a[$db_col]}) {
+		foreach $r ( @{$db{$a[$db_col]}} ) {
+			print $r ."\n";
+		}
+	}
+}
+
+close(FILE);
+
