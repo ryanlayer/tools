@@ -13,13 +13,19 @@ usage()
 
 usage: $0 OPTIONS
 
+version: 0.2
+
 OPTIONS can be:
   -h  Show this message
   -m  mem      Memory (default 3g)
   -t  threads  Threads per device (default 1)
-  -d  devices  Devices (default 1)
+  -d  devices  Number of devices (default 1) or device names
   -n  name     Name (default quick_q)
   -c  cmd      Command
+  -q  queue    Queue name
+  -W  attr     Additional attributes
+  -Q		   Run in quite mode
+  -M		   Mail results
 EOF
 }
 
@@ -30,19 +36,30 @@ then
     exit
 fi
 
-MEM="1g"
+MEM="4g"
 NAME="quick_q"
 THREADS=1
 DEVICE=1
 CMD=1
+QUEUE=
+ATTRS=
+NODES=
+QUITE=
+MAIL=
 
 # Check options passed in.
-while getopts "h m:t:n:c:d:" OPTION
+while getopts "h m:t:n:c:d:q:l:W:Q M" OPTION
 do
     case $OPTION in
         h)
             usage
             exit 1
+            ;;
+        M)
+            MAIL=1
+            ;;
+        Q)
+            QUITE=1
             ;;
         m)
             MEM=$OPTARG
@@ -59,6 +76,12 @@ do
         c)
             CMD=$OPTARG
             ;;
+        q)
+            QUEUE=$OPTARG
+            ;;
+        W)
+            ATTRS=$OPTARG
+            ;;
         ?)
             usage
             exit
@@ -66,10 +89,44 @@ do
     esac
 done
 
-QSUB="/usr/pbs/bin/qsub"
-QSUB_CMD="$QSUB -l select=$DEVICE:mem=$MEM:ncpus=$THREADS -m bae -N $NAME -M rl6sf@virginia.edu"
+#QSUB="/usr/pbs/bin/qsub"
+QSUB=qsub
+
+# for pbs_version = PBSPro_11.2.0.113417
+#QSUB_CMD="$QSUB -l select=$DEVICE:mem=$MEM:ncpus=$THREADS -m bae -N $NAME -M rl6sf@virginia.edu"
+# for version: 3.0.3
+
+QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS,mem=$MEM -N $NAME"
+
+if [ ! -z $MAIL ]
+then
+	QSUB_CMD="$QSUB_CMD -m abe"
+fi
+
+if [ ! -z $QUITE ]
+then
+	QSUB_CMD="$QSUB_CMD -e /dev/null -o /dev/null"
+fi
+
+if [ ! -z $QUEUE ]
+then
+	QSUB_CMD="$QSUB_CMD -q $QUEUE"
+fi
+
+if [ ! -z $ATTRS ]
+then
+	QSUB_CMD="$QSUB_CMD -W $ATTRS"
+fi
+
+
+#echo $QSUB_CMD
+
 JID=`echo "cd \\$PBS_O_WORKDIR; $CMD" | $QSUB_CMD`
-DATE=`date +%Y%m%d_%T`
-echo $DATE > $APP.$JID.log
-echo $JID >> $APP.$JID.log
-echo $CMD >> $APP.$JID.log
+echo $JID
+if [ -z $QUITE ]
+then
+	DATE=`date +%Y%m%d_%T`
+	echo $DATE > $JID.log
+	echo $JID >> $JID.log
+	echo $CMD >> $JID.log
+fi

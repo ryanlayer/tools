@@ -20,7 +20,7 @@ while(<STDIN>) {
 	}
 }
 
-@X = sort(@X);
+@X = sort{$a<=>$b}(@X);
 
 if ($n == 0) {
 	print 0;
@@ -47,5 +47,5 @@ if ($n == 0) {
 		$mad = $X[$n/2];
 	}
 
-	print "median:$median\tmad:$mad\n";
+	print "$median,$mad";
 }

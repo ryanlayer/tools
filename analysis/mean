@@ -25,7 +25,8 @@ if ($n != 0) {
 	$mean = $sum/$n;
 }
 
-print "mean:$mean ";
+#print "mean:$mean ";
+print "$mean,";
 
 $sum = 0;
 
@@ -38,4 +39,5 @@ if ($n !=0) {
 	$sigma = sqrt($sum/$n);
 }
 
-print "standard deviation:$sigma\n";
+#print "standard deviation:$sigma\n";
+print "$sigma\n";
