@@ -105,7 +105,7 @@ fi
 
 
 #find the size of the input
-SIZE=`grep -v "^>" $1 | paste -s -d '' | wc -m`
+SIZE=`grep -v "^>" $INPUT | paste -s -d '' | wc -m`
 
 NUM_PAIRS=`calc "($SIZE*$COVERAGE)/($READ_LEN*2)" | cut -d "." -f1`
 
@@ -128,5 +128,5 @@ wgsim -d $LIB_LEN -N $NUM_PAIRS -1 $READ_LEN -2 $READ_LEN \
 	-e $BASE_ERROR \
 	-r $MUTATION \
 	$INPUT \
-	$OUTPUT.$COVERAGE.1.fq \
-	$OUTPUT.$COVERAGE.2.fq
+	$OUTPUT.c$COVERAGE.1.fq \
+	$OUTPUT.c$COVERAGE.2.fq
