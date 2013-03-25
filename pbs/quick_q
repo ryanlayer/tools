@@ -46,6 +46,7 @@ ATTRS=
 NODES=
 QUITE=
 MAIL=
+LOG=0
 
 # Check options passed in.
 while getopts "h m:t:n:c:d:q:l:W:Q M" OPTION
@@ -54,6 +55,9 @@ do
         h)
             usage
             exit 1
+            ;;
+        L)
+            LOG=1
             ;;
         M)
             MAIL=1
@@ -121,12 +125,15 @@ fi
 
 #echo $QSUB_CMD
 
-JID=`echo "cd \\$PBS_O_WORKDIR; $CMD" | $QSUB_CMD`
-echo $JID
-if [ -z $QUITE ]
+if [ ! -z $LOG ]
 then
-	DATE=`date +%Y%m%d_%T`
-	echo $DATE > $JID.log
-	echo $JID >> $JID.log
-	echo $CMD >> $JID.log
+    JID=`echo "cd \\$PBS_O_WORKDIR; $CMD" | $QSUB_CMD`
+    echo $JID
+    if [ -z $QUITE ]
+    then
+        DATE=`date +%Y%m%d_%T`
+        echo $DATE > $JID.log
+        echo $JID >> $JID.log
+        echo $CMD >> $JID.log
+    fi
 fi
