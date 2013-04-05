@@ -33,16 +33,13 @@ print_usage() if not($file);
 
 open(FILE, $file) or die "Could not open $file.\n$!";
 
-my $name = <FILE>;
-chomp($name);
-my $seq;
 while (my $l = <FILE>) {
 	chomp($l);
 	if ($l =~ /^>/) {
 		print "$l\n";
 	} else {
-        $u = uc $l;
-		print "$l\n";
+        my $u = uc $l;
+		print "$u\n";
 	}
 }
 close(FILE);
