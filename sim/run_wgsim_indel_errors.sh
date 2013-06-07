@@ -15,9 +15,8 @@ OPTIONS can be:
   -r  Read length
   -l  Library length
   -c  Coverage
-  -R  INDEL fraction (default 0.15)
+  -R  fraction of INDEL errors (default 0.15)
   -e  Base error rate (default 0.01)
-  -m  Mutation rate (default 0)
 EOF
 }
 
@@ -39,7 +38,7 @@ BASE_ERROR=0.01
 MUTATION=0
 
 # Check options passed in.
-while getopts "h i:o:r:l:c:e:m:R:" OPTION
+while getopts "h i:o:r:l:c:e:R:" OPTION
 do
     case $OPTION in
         h)
@@ -66,9 +65,6 @@ do
             ;;
         e)
             BASE_ERROR=$OPTARG
-            ;;
-        m)
-            MUTATION=$OPTARG
             ;;
         ?)
             usage
@@ -129,10 +125,21 @@ NUM_PAIRS=`calc "($SIZE*$COVERAGE)/($READ_LEN*2)" | cut -d "." -f1`
 #         -A FLOAT      disgard if the fraction of ambiguous bases higher
 #         -h            haplotype mode
 
-wgsim -d $LIB_LEN -N $NUM_PAIRS -1 $READ_LEN -2 $READ_LEN \
-	-R $INDELS \
-	-e $BASE_ERROR \
-	-r $MUTATION \
-	$INPUT \
-	$OUTPUT.c$COVERAGE.1.fq \
-	$OUTPUT.c$COVERAGE.2.fq
+rm -f $OUTPUT.c$COVERAGE.1.fq
+rm -f $OUTPUT.c$COVERAGE.2.fq
+for i in $(seq 1 $NUM_PAIRS)
+do
+	wgsim -d $LIB_LEN \
+		-N 1 \
+		-1 $READ_LEN \
+		-2 $READ_LEN \
+		-r $BASE_ERROR \
+		-R $INDELS \
+		$INPUT \
+		$OUTPUT.c$COVERAGE.1.fq.tmp \
+		$OUTPUT.c$COVERAGE.2.fq.tmp 2>/dev/null >/dev/null
+	cat $OUTPUT.c$COVERAGE.1.fq.tmp >> $OUTPUT.c$COVERAGE.1.fq
+	cat $OUTPUT.c$COVERAGE.2.fq.tmp >> $OUTPUT.c$COVERAGE.2.fq
+done
+rm $OUTPUT.c$COVERAGE.1.fq.tmp
+rm $OUTPUT.c$COVERAGE.2.fq.tmp

@@ -36,7 +36,7 @@ then
     exit
 fi
 
-MEM="4g"
+MEM=
 NAME="quick_q"
 THREADS=1
 DEVICE=1
@@ -100,7 +100,16 @@ QSUB=qsub
 #QSUB_CMD="$QSUB -l select=$DEVICE:mem=$MEM:ncpus=$THREADS -m bae -N $NAME -M rl6sf@virginia.edu"
 # for version: 3.0.3
 
-QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS,mem=$MEM -N $NAME"
+#QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS,mem=$MEM -N $NAME"
+QSUB_CMD="$QSUB -l nodes=$DEVICE:ppn=$THREADS"
+
+if [ ! -z $MEM ]
+then
+	QSUB_CMD="$QSUB_CMD,mem=$MEM "
+fi
+
+QSUB_CMD="$QSUB_CMD -N $NAME"
+
 
 if [ ! -z $MAIL ]
 then
@@ -123,10 +132,11 @@ then
 fi
 
 
-#echo $QSUB_CMD
+echo $QSUB_CMD
 
 if [ ! -z $LOG ]
 then
+    echo $QSUB_CMD
     JID=`echo "cd \\$PBS_O_WORKDIR; $CMD" | $QSUB_CMD`
     echo $JID
     if [ -z $QUITE ]
