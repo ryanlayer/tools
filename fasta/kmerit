@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+import random
+from optparse import OptionParser
+
+parser = OptionParser()
+
+parser.add_option("-s",
+                  "--sequence",
+                  dest="sequence",
+                  help="Sequence not given")
+
+parser.add_option("-k",
+                  "--kmer",
+                  dest="k",
+                  type="int",
+                  help="Kmer size not given")
+
+parser.add_option("-d",
+                  "--dups",
+                  action="store_true",
+                  dest="d",
+                  default=False,
+                  help="Print only duplicates")
+
+
+(options, args) = parser.parse_args()
+
+
+if not options.sequence:
+    parser.error('Sequence not given')
+
+if not options.k:
+    parser.error('K not given')
+
+K=[]
+D={}
+for i in range(len(options.sequence) - options.k + 1):
+    kmer = options.sequence[i:(i+options.k)]
+    if not kmer in K:
+        K.append(kmer)
+    else:
+        if kmer not in D:
+            D[kmer]=0
+        D[kmer]+=1
+
+if options.d:
+    for d in D:
+        print d + "\t" + str(D[d])
+else:
+    for k in K:
+        print k
