@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import random
+from optparse import OptionParser
+
+parser = OptionParser()
+
+parser.add_option("-l",
+                  "--length",
+                  type="int",
+                  dest="length",
+                  help="Sequence length")
+
+parser.add_option("-s",
+                  "--seed",
+                  type="int",
+                  dest="seed",
+                  help="Randome seed")
+
+(options, args) = parser.parse_args()
+
+
+if not options.length:
+        parser.error('Length not given')
+
+if options.seed:
+    random.seed(options.seed)
+
+seq = ""
+
+for i in range(options.length):
+    seq += random.choice(['A','C','T','G'])
+
+print seq
