@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+import sys
+import numpy as np
+import scipy.stats as ss
+
+from optparse import OptionParser
+
+parser = OptionParser()
+
+parser.add_option( "--mean",
+    action="store_true",
+    dest="mean",
+    help="Return mean")
+
+parser.add_option( "--std",
+    action="store_true",
+    dest="std",
+    help="Return standard deviation")
+
+parser.add_option( "--min",
+    action="store_true",
+    dest="minv",
+    help="Return min value")
+
+parser.add_option( "--max",
+    action="store_true",
+    dest="maxv",
+    help="Return max value")
+
+parser.add_option( "--range",
+    action="store_true",
+    dest="rangev",
+    help="Return max value")
+
+
+
+
+
+parser.add_option("--trim_max",
+    action="store_true",
+    dest="trim_max",
+    help="Remove max value")
+
+parser.add_option("--trim_min",
+    action="store_true",
+    dest="trim_min",
+    help="Remove min value")
+
+parser.add_option("--trim",
+    action="store_true",
+    dest="trim_min",
+    help="Trim values above")
+
+
+
+(options, args) = parser.parse_args()
+
+N=[]
+for l in sys.stdin:
+    A = l.rstrip().split()
+    for a in A:
+        N.append(float(a))
+
+O=[]
+if options.mean:
+    O.append(str(np.mean(N)))
+
+if options.std:
+    O.append(str(np.std(N)))
+
+if options.minv:
+    O.append(str(min(N)))
+
+if options.maxv:
+    O.append(str(max(N)))
+
+if options.rangev:
+    O.append(str((max(N) - min(N))))
+
+
+
+
+print ','.join(O)
