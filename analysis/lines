@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+import sys
+import numpy as np
+
+from optparse import OptionParser
+
+parser = OptionParser()
+
+parser.add_option("-f",
+    "--data_file",
+    dest="data_file",
+    help="Data file")
+
+parser.add_option("-l",
+    "--lines",
+    dest="lines",
+    help="CSV line numbers to fetch (first line is line 0).  " +
+        "This list will be sorted.")
+
+
+(options, args) = parser.parse_args()
+
+if not options.lines:
+    parser.error('Lines not given')
+
+f = -1
+if options.data_file:
+    f = open(options.data_file,'r')
+else:
+    f = sys.stdin
+
+L = sorted([int(x) for x in options.lines.split(',')])
+L_c = len(L)
+
+L_i = 0
+F_i = 0
+for l in f:
+    if (F_i == L[L_i]):
+        print l,
+        L_i += 1
+    if (L_i == L_c):
+        break
+
+    F_i += 1
+
+
+f.close()
