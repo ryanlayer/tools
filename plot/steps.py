@@ -55,8 +55,15 @@ parser.add_option("-X",
                   dest="X",
                   help="X values includeded (Y line i, X line i+1)")
 
+parser.add_option("--x_max",
+                  dest="max_x",
+                  type="float",
+                  help="Max x value")
 
-
+parser.add_option("--x_min",
+                  dest="min_x",
+                  type="float",
+                  help="Min x value")
 
 (options, args) = parser.parse_args()
 if not options.output_file:
@@ -117,6 +124,12 @@ if options.xlabel:
 
 if options.ylabel:
     ax.set_ylabel(options.ylabel)
+
+if options.max_x:
+    ax.set_xlim(xmax=options.max_x)
+if options.min_x:
+    ax.set_xlim(xmin=options.min_x)
+
 
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)

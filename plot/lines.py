@@ -17,6 +17,13 @@ parser.add_option("-o",
                   dest="output_file",
                   help="Data file")
 
+parser.add_option("-l",
+                  "--line_stype",
+                  default='-o',
+                  dest="line_style",
+                  help="Line style (Default '-o')")
+
+
 parser.add_option("--legend",
                   dest="legend",
                   help="Comma sperated legend")
@@ -45,8 +52,26 @@ parser.add_option("-X",
                   dest="X",
                   help="X values includeded (Y line i, X line i+1)")
 
+parser.add_option("--x_max",
+                  dest="max_x",
+                  type="float",
+                  help="Max x value")
+
+parser.add_option("--x_min",
+                  dest="min_x",
+                  type="float",
+                  help="Min x value")
 
 
+parser.add_option("--y_max",
+                  dest="max_y",
+                  type="float",
+                  help="Max y value")
+
+parser.add_option("--y_min",
+                  dest="min_y",
+                  type="float",
+                  help="Min y value")
 
 (options, args) = parser.parse_args()
 if not options.output_file:
@@ -73,13 +98,21 @@ if (options.X):
     for i in range(len(lines))[::2]:
         Y = [float(x) for x in lines[i].rstrip().split()]
         X = [float(x) for x in lines[i+1].rstrip().split()]
-        p, = ax.plot(X,Y,'-o',color=colors[color_i], linewidth=1)
+        p, = ax.plot(X,\
+                     Y,\
+                     options.line_style,\
+                     color=colors[color_i],\
+                     linewidth=1)
         plts.append(p)
         color_i = (color_i + 1) % len(colors)
 else:
     for i in range(len(lines))[::1]:
         Y = [float(x) for x in lines[i].rstrip().split()]
-        p, = ax.plot(range(len(Y)),Y,'-o',color=colors[color_i], linewidth=1)
+        p, = ax.plot(range(len(Y)), \
+                     Y,\
+                     options.line_style,\
+                     color=colors[color_i], \
+                     linewidth=1)
         plts.append(p)
         color_i = (color_i + 1) % len(colors)
 
@@ -97,6 +130,16 @@ if options.xlabel:
 
 if options.ylabel:
     ax.set_ylabel(options.ylabel)
+
+if options.max_x:
+    ax.set_xlim(xmax=options.max_x)
+if options.min_x:
+    ax.set_xlim(xmin=options.min_x)
+
+if options.max_y:
+    ax.set_ylim(ymax=options.max_y)
+if options.min_y:
+    ax.set_ylim(ymin=options.min_y)
 
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
