@@ -35,11 +35,12 @@ L_c = len(L)
 L_i = 0
 F_i = 0
 for l in f:
-    if (F_i == L[L_i]):
+    while (F_i == L[L_i]):
         print l,
         L_i += 1
-    if (L_i == L_c):
-        break
+        if (L_i == L_c):
+            exit(1)
+
 
     F_i += 1
 

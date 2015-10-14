@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use Scalar::Util qw(looks_like_number);
 
 my $switch = shift;
 
@@ -9,13 +10,15 @@ my $max=-99999999999;
 while(<STDIN>) {
 	my $line_s = $_;
 	chomp ($line_s);
-	if ($line_s < $min) {
-		$min = $line_s;
-	}
-
-	if ($line_s > $max) {
-		$max = $line_s;
-	}
+        if (looks_like_number($line_s)) {
+	    if ($line_s < $min) {
+		    $min = $line_s;
+	    }
+    
+	    if ($line_s > $max) {
+		    $max = $line_s;
+	    }
+        }
 }
 
 print "min:$min\tmax:$max\n";

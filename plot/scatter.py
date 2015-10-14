@@ -19,6 +19,21 @@ parser.add_option("-o",
                   dest="output_file",
                   help="Data file")
 
+parser.add_option("--title",
+                  dest="title",
+                  help="Plot title")
+
+
+parser.add_option("--x_label",
+                  dest="x_label",
+                  help="X axis label")
+
+parser.add_option("--y_label",
+                  dest="y_label",
+                  help="Y axis label")
+
+
+
 parser.add_option("--y_min",
                   dest="min_y",
                   help="Min y value")
@@ -27,11 +42,43 @@ parser.add_option("--y_max",
                   dest="max_y",
                   help="Max y value")
 
+parser.add_option("--x_min",
+                  dest="min_x",
+                  help="Min x value")
+
+parser.add_option("--x_max",
+                  dest="max_x",
+                  help="Max x value")
+
+
 parser.add_option("--line_style",
                   dest="line_style",
                   default=".",
                   help="Line style")
 
+parser.add_option("--fig_x",
+                  dest="fig_x",
+                  type="int",
+                  default=5,
+                  help="Figure width")
+
+parser.add_option("--fig_y",
+                  dest="fig_y",
+                  type="int",
+                  default=5,
+                  help="Figure height")
+
+parser.add_option("-b",
+                  action="store_true", 
+                  default=False,
+                  dest="black",
+                  help="black background")
+
+parser.add_option("-c",
+                  "--color",
+                  dest="color",
+                  default="black",
+                  help="Color")
 
 
 (options, args) = parser.parse_args()
@@ -51,14 +98,46 @@ for l in sys.stdin:
 
 
 matplotlib.rcParams.update({'font.size': 12})
-fig = matplotlib.pyplot.figure(figsize=(5,5),dpi=300)
+#fig = matplotlib.pyplot.figure(figsize=(options.fig_x,options.fig_y),dpi=300)
+fig = 1
+if options.black:
+    fig = matplotlib.pyplot.figure(\
+            figsize=(options.fig_x,options.fig_y),\
+            dpi=300,\
+            facecolor='black')
+else:
+    fig = matplotlib.pyplot.figure(\
+            figsize=(options.fig_x,options.fig_y),\
+            dpi=300)
+
 fig.subplots_adjust(wspace=.05,left=.01,bottom=.01)
 
-ax = fig.add_subplot(1,1,1)
-if len(X) == 0:
-    ax.plot(range(len(Y)),Y,options.line_style,color='black', linewidth=1)
+#ax = fig.add_subplot(1,1,1)
+ax = 1
+if options.black:
+    ax = fig.add_subplot(1,1,1,axisbg='k')
 else:
-    ax.plot(X,Y,options.line_style,color='black', linewidth=1)
+    ax = fig.add_subplot(1,1,1)
+
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+
+if options.black:
+    ax.spines['bottom'].set_color('white')
+    ax.spines['left'].set_color('white')
+    ax.title.set_color('white')
+    ax.yaxis.label.set_color('white')
+    ax.xaxis.label.set_color('white')
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+ax.get_xaxis().tick_bottom()
+ax.get_yaxis().tick_left()
+
+#if len(X) == 0:
+#    ax.plot(range(len(Y)),Y,options.line_style,color=options.color, s=1,linewidth=1)
+#else:
+#    ax.plot(X,Y,options.line_style,color=options.color, linewidth=1)
+ax.scatter(X,Y,s=1,color=options.color)
 
 if options.logy:
     ax.set_yscale('log')
@@ -66,8 +145,27 @@ if options.logy:
 if ((options.max_y) and (options.min_y)):
     ax.set_ylim(float(options.min_y),float(options.max_y))
 
-if len(X) != 0:
-    ax.set_xticks([float(x) for x in X])
-    #ax.set_xticklabels
+if ((options.max_x) and (options.min_x)):
+    ax.set_xlim(float(options.min_x),float(options.max_x))
 
-matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
+#if len(X) != 0:
+#    ax.set_xticks([float(x) for x in X])
+#    #ax.set_xticklabels
+
+if options.x_label:
+    ax.set_xlabel(options.x_label)
+
+if options.y_label:
+    ax.set_xlabel(options.y_label)
+
+if options.title:
+    ax.set_title(options.title)
+
+#matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
+
+if options.black:
+    matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight',\
+            facecolor=fig.get_facecolor(),\
+              transparent=True)
+else:
+    matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')

@@ -47,5 +47,5 @@ if ($n == 0) {
 		$mad = $X[$n/2];
 	}
 
-	print "$median,$mad";
+	print "$median,$mad\n";
 }

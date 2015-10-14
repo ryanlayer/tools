@@ -23,6 +23,12 @@ parser.add_option("-d",
                   default=False,
                   help="Print only duplicates")
 
+parser.add_option("-c",
+                  "--count",
+                  action="store_true",
+                  dest="count",
+                  default=False,
+                  help="Print kmer counts")
 
 (options, args) = parser.parse_args()
 
@@ -33,18 +39,27 @@ if not options.sequence:
 if not options.k:
     parser.error('K not given')
 
+C={}
 K=[]
 D={}
 for i in range(len(options.sequence) - options.k + 1):
     kmer = options.sequence[i:(i+options.k)]
-    if not kmer in K:
-        K.append(kmer)
+    if options.count:
+        if not kmer in C:
+            C[kmer] = 0;
+        C[kmer] += 1;
     else:
-        if kmer not in D:
-            D[kmer]=0
-        D[kmer]+=1
+        if not kmer in K:
+            K.append(kmer)
+        else:
+            if kmer not in D:
+                D[kmer]=0
+            D[kmer]+=1
 
-if options.d:
+if options.count:
+    for c in C:
+        print c + "\t" + str(C[c])
+elif options.d:
     for d in D:
         print d + "\t" + str(D[d])
 else:

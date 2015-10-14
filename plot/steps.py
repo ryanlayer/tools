@@ -12,6 +12,20 @@ rcParams['font.family'] = 'Arial'
 delim = '\t'
 parser = OptionParser()
 
+parser.add_option("--xbins",
+                  dest="xbins",
+                  help="Number of ticks on x-axis")
+
+
+
+parser.add_option("-w",
+                  "--line_width",
+                  dest="line_width",
+                  type='int',
+                  default=1,
+                  help="Line width (Default 1)")
+
+
 parser.add_option("--x_sci",
                   action="store_true",default=False,
                   dest="x_sci",
@@ -70,10 +84,13 @@ if not options.output_file:
     parser.error('Output file not given')
 
 matplotlib.rcParams.update({'font.size': 12})
-fig = matplotlib.pyplot.figure(figsize=(5,5),dpi=300)
+fig = matplotlib.pyplot.figure(figsize=(2,3),dpi=300)
+if options.xbins:
+    matplotlib.pyplot.locator_params(axis = 'x', nbins = options.xbins)
 #fig.subplots_adjust(top=1.0)
 
 ax = fig.add_subplot(1,1,1)
+ax.tick_params(labelsize=10)
 
 
 colors = [ 'blue', \
@@ -94,7 +111,7 @@ if (options.X):
                      Y,\
                      '-',\
                      color=colors[color_i],\
-                     linewidth=1,\
+                     linewidth=options.line_width,\
                      ls = "steps" )
         plts.append(p)
         color_i = (color_i + 1) % len(colors)
@@ -105,7 +122,7 @@ else:
                      Y,\
                      '-',\
                      color=colors[color_i],\
-                     linewidth=1, \
+                     linewidth=options.line_width, \
                      ls = "steps" )
         plts.append(p)
         color_i = (color_i + 1) % len(colors)
