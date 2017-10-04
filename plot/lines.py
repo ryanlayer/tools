@@ -14,6 +14,16 @@ rcParams['legend.numpoints'] = 1
 delim = '\t'
 parser = OptionParser()
 
+parser.add_option("--xticks",
+                  dest="xticks",
+                  help="CSV of x tick lables")
+
+
+parser.add_option("--numyticks",
+                  dest="numyticks",
+                  help="Number of Y ticks")
+
+
 parser.add_option("-c",
                   "--colors",
                   dest="colors",
@@ -66,6 +76,13 @@ parser.add_option("--xbins",
 parser.add_option("--legend",
                   dest="legend",
                   help="Comma sperated legend")
+
+parser.add_option("--legend_loc",
+                  dest="legend_loc",
+                  type="int",
+                  default=4,
+                  help="Legend location")
+
 
 parser.add_option("--title",
                   dest="title",
@@ -149,6 +166,7 @@ if options.black:
 else:
     ax = fig.add_subplot(1,1,1)
 
+ax.set_axisbelow(True)
 ax.tick_params(labelsize=10)
 
 
@@ -171,7 +189,8 @@ if (options.X):
                      Y,\
                      options.line_style,\
                      color=colors[color_i],\
-                     linewidth=options.line_width)
+                     linewidth=options.line_width,
+                     markeredgewidth=0)
         plts.append(p)
         color_i = (color_i + 1) % len(colors)
 else:
@@ -181,7 +200,8 @@ else:
                      Y,\
                      options.line_style,\
                      color=colors[color_i], \
-                     linewidth=options.line_width)
+                     linewidth=options.line_width,
+                     markeredgewidth=0)
         plts.append(p)
         color_i = (color_i + 1) % len(colors)
 
@@ -192,14 +212,15 @@ if options.xlog:
     ax.set_xscale('log')
 
 if options.legend:
-    l1=ax.legend(plts, options.legend.split(","), frameon=False, fontsize=10,loc=4)
+    l1=ax.legend(plts, options.legend.split(","), frameon=False, fontsize=10,loc=options.legend_loc)
     if options.black:
         for text in l1.get_texts():
             matplotlib.pyplot.setp(text,color='white')
 
 
 if options.title:
-    matplotlib.pyplot.suptitle(options.title)
+    #matplotlib.pyplot.suptitle(options.title)
+    ax.set_title(options.title)
 
 if options.xlabel:
     ax.set_xlabel(options.xlabel)
@@ -233,6 +254,7 @@ ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 #ax.legend()
 
+
 if options.ablines:
     #h:10:-o:white
     for ab in options.ablines.split(","):
@@ -246,6 +268,11 @@ if options.ablines:
             ax.plot([ab_min,ab_max],[ab_pos,ab_pos],ab_ls,c=ab_col)
 
 
+if options.numyticks:
+    matplotlib.pyplot.locator_params(axis = 'y', nbins = int(options.numyticks))
+
+if options.xticks:
+    ax.set_xticklabels(options.xticks.split(','))
 
 if options.black:
     matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight',\

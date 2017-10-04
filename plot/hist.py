@@ -6,6 +6,9 @@ import pylab
 import random
 from optparse import OptionParser
 
+from matplotlib import rcParams
+rcParams['font.family'] = 'Arial'
+
 parser = OptionParser()
 
 parser.add_option("-t",
@@ -46,6 +49,18 @@ parser.add_option("--x_min",
                   type="float",
                   help="Min x value")
 
+parser.add_option("--y_max",
+                  dest="max_y",
+                  type="float",
+                  help="Max y value")
+
+
+parser.add_option("--y_min",
+                  dest="min_y",
+                  type="float",
+                  help="Min y value")
+
+
 parser.add_option("-c",
                   "--column",
                   dest="col",
@@ -75,6 +90,25 @@ parser.add_option("--y_sci",
                   dest="y_sci",
                   help="Use scientific notation for y-axis")
 
+parser.add_option("--width",
+                  dest="width",
+                  type="int",
+                  default=5,
+                  help="Figure width")
+
+parser.add_option("--height",
+                  dest="height",
+                  type="int",
+                  default=5,
+                  help="Figure height")
+
+parser.add_option("--black",
+                  action="store_true", 
+                  default=False,
+                  dest="black",
+                  help="black background")
+
+
 
 (options, args) = parser.parse_args()
 if not options.output_file:
@@ -84,10 +118,26 @@ Y=[]
 for l in sys.stdin:
     a = l.rstrip().split(options.delim)
     if len(a) == 1:
-        Y.append(float(a[options.col]))
+        if len(a[options.col]) != 0 :
+            Y.append(float(a[options.col]))
 
 matplotlib.rcParams.update({'font.size': 12})
-fig = matplotlib.pyplot.figure(figsize=(5,5),dpi=300)
+#fig = matplotlib.pyplot.figure(figsize=(10,5),dpi=300)
+
+#fig = matplotlib.pyplot.figure(figsize=(options.width,options.height),dpi=300)
+
+if options.black:
+    fig = matplotlib.pyplot.figure(\
+            figsize=(options.width,options.height),\
+            dpi=300,\
+            facecolor='black')
+else:
+    fig = matplotlib.pyplot.figure(\
+            figsize=(options.width,options.height),\
+            dpi=300)
+
+
+
 fig.subplots_adjust(wspace=.05,left=.01,bottom=.01)
 
 x_max = max(Y)
@@ -98,9 +148,27 @@ if options.max_x:
 if options.min_x:
     x_min = options.min_x
 
-ax = fig.add_subplot(1,1,1)
-ax.hist(Y,options.bins,log=options.ylog,range=(x_min,x_max),align='mid',\
-        histtype='bar', rwidth=1.0)
+#ax = fig.add_subplot(1,1,1)
+if options.black:
+    ax = fig.add_subplot(1,1,1,axisbg='k')
+else:
+    ax = fig.add_subplot(1,1,1)
+
+
+
+ax.hist(Y,options.bins,log=options.ylog,align='mid',\
+        histtype='bar', rwidth=1)
+
+if options.max_x:
+    ax.set_xlim(xmax=options.max_x)
+if options.min_x:
+    ax.set_xlim(xmin=options.min_x)
+if options.max_y:
+    ax.set_ylim(ymax=options.max_y)
+if options.min_y:
+    ax.set_ylim(ymin=options.min_y)
+
+#ax.set_ylim([0,10])
 
 if options.x_sci:
     formatter = matplotlib.ticker.ScalarFormatter()
@@ -136,4 +204,26 @@ if options.ylabel:
 if options.title:
     ax.set_title(options.title)
 
-matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.xaxis.set_ticks_position('bottom')
+ax.yaxis.set_ticks_position('left')
+
+if options.black:
+    ax.spines['bottom'].set_color('white')
+    ax.spines['left'].set_color('white')
+    ax.title.set_color('white')
+    ax.yaxis.label.set_color('white')
+    ax.xaxis.label.set_color('white')
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+
+
+
+#matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
+if options.black:
+    matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight',\
+            facecolor=fig.get_facecolor(),\
+              transparent=True)
+else:
+    matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')

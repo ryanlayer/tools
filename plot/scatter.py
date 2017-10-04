@@ -6,6 +6,9 @@ import pylab
 import random
 from optparse import OptionParser
 
+from matplotlib import rcParams
+rcParams['font.family'] = 'Arial'
+
 delim = '\t'
 parser = OptionParser()
 
@@ -13,6 +16,13 @@ parser.add_option("-l",
                   "--log_y",
                   action="store_true", dest="logy", default=False,
                   help="Use log scale for y-axis")
+
+parser.add_option("-a",
+                  "--alpha",
+                  dest="alpha",
+                  type="float",
+                  default="0.5",
+                  help="Alpha value")
 
 parser.add_option("-o",
                   "--output_file",
@@ -32,7 +42,13 @@ parser.add_option("--y_label",
                   dest="y_label",
                   help="Y axis label")
 
+parser.add_option("--axhline",
+                  dest="axhline",
+                  help="Horizonal lines")
 
+parser.add_option("--axvline",
+                  dest="axvline",
+                  help="Vertical lines")
 
 parser.add_option("--y_min",
                   dest="min_y",
@@ -80,6 +96,19 @@ parser.add_option("-c",
                   default="black",
                   help="Color")
 
+parser.add_option("--trend",
+                  action="store_true", 
+                  default=False,
+                  dest="trend",
+                  help="Trend line")
+
+parser.add_option("--point_size",
+                  dest="point_size",
+                  type="float",
+                  default=1,
+                  help="Scatter point size (defualt 1)")
+
+
 
 (options, args) = parser.parse_args()
 if not options.output_file:
@@ -87,14 +116,19 @@ if not options.output_file:
 
 X=[]
 Y=[]
+E=[]
 for l in sys.stdin:
     #a = l.rstrip().split(delim)
     a = l.rstrip().split()
     if len(a) == 1:
-        Y.append(a[0])
+        Y.append(float(a[0]))
     if len(a) == 2:
-        X.append(a[0])
-        Y.append(a[1])
+        X.append(float(a[0]))
+        Y.append(float(a[1]))
+    if len(a) == 3:
+        X.append(float(a[0]))
+        Y.append(float(a[1]))
+        E.append(float(a[2]))
 
 
 matplotlib.rcParams.update({'font.size': 12})
@@ -133,11 +167,18 @@ if options.black:
 ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 
-#if len(X) == 0:
-#    ax.plot(range(len(Y)),Y,options.line_style,color=options.color, s=1,linewidth=1)
-#else:
-#    ax.plot(X,Y,options.line_style,color=options.color, linewidth=1)
-ax.scatter(X,Y,s=1,color=options.color)
+if len(X) == 0:
+    ax.plot(range(len(Y)),Y,options.line_style,color=options.color, s=1,linewidth=1)
+else:
+    ax.plot(X,Y,options.line_style,color=options.color, linewidth=1,alpha=options.alpha,ms=float(options.point_size))
+#ax.scatter(X,Y,s=options.point_size,color=options.color)
+
+#print X
+#print Y
+#ax.errorbar(X, Y, yerr=E, fmt='-o', color=options.color)
+if len(E)!=0:
+    ax.errorbar(X,Y,yerr=E, linestyle="None", color='gray')
+
 
 if options.logy:
     ax.set_yscale('log')
@@ -156,10 +197,28 @@ if options.x_label:
     ax.set_xlabel(options.x_label)
 
 if options.y_label:
-    ax.set_xlabel(options.y_label)
+    ax.set_ylabel(options.y_label)
 
 if options.title:
     ax.set_title(options.title)
+
+if options.trend:
+    z = np.polyfit(X, Y, 1)
+    p = np.poly1d(z)
+    ax.plot(X,p(Y),'r--',color='red')
+
+
+if options.axhline:
+    for hv in [float(x) for x in options.axhline.split(",")]:
+        print hv
+        ax.axhline(y=hv, color='r')
+
+if options.axvline:
+    for hv in [float(x) for x in options.axvline.split(",")]:
+        ax.avhline(x=hv, color='r')
+
+
+
 
 #matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
 
