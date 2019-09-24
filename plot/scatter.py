@@ -12,6 +12,41 @@ rcParams['font.family'] = 'Arial'
 delim = '\t'
 parser = OptionParser()
 
+parser.add_option("--noxticks",
+                  dest="noxticks",
+                  action="store_true", 
+                  default=False,
+                  help="No X axsis line")
+
+parser.add_option("--noyticks",
+                  dest="noyticks",
+                  action="store_true", 
+                  default=False,
+                  help="No Y axsis line")
+
+parser.add_option("--noxtick_labels",
+                  dest="noxtick_labels",
+                  action="store_true", 
+                  default=False,
+                  help="No X axsis labels")
+
+parser.add_option("--noytick_labels",
+                  dest="noytick_labels",
+                  action="store_true", 
+                  default=False,
+                  help="No Y axsis labels")
+
+
+parser.add_option("--xticks",
+                  dest="xticks",
+                  action="store_true", 
+                  default=False,
+                  help="No X axsis line")
+
+parser.add_option("--no_x",
+                  dest="no_x",
+                  help="CSV of x tick lables")
+
 parser.add_option("-l",
                   "--log_y",
                   action="store_true", dest="logy", default=False,
@@ -90,17 +125,25 @@ parser.add_option("-b",
                   dest="black",
                   help="black background")
 
-parser.add_option("-c",
-                  "--color",
-                  dest="color",
+parser.add_option("--markeredgecolor",
+                  dest="markeredgecolor",
                   default="black",
-                  help="Color")
+                  help="Marker Edge Color")
+
+parser.add_option("--markerfacecolor",
+                  dest="markerfacecolor",
+                  default="black",
+                  help="Marker Face Color")
 
 parser.add_option("--trend",
                   action="store_true", 
                   default=False,
                   dest="trend",
                   help="Trend line")
+
+parser.add_option("--ref_lines",
+                  dest="ref_lines",
+                  help="Refernece lines (CSV slope:intercept:style:color) ")
 
 parser.add_option("--point_size",
                   dest="point_size",
@@ -168,14 +211,22 @@ ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 
 if len(X) == 0:
-    ax.plot(range(len(Y)),Y,options.line_style,color=options.color, s=1,linewidth=1)
+    ax.plot(range(len(Y)),
+            Y,
+            options.line_style,
+            markeredgecolor=options.markeredgecolor,
+            markerfacecolor=options.markerfacecolor,
+            s=1,
+            linewidth=1)
 else:
-    ax.plot(X,Y,options.line_style,color=options.color, linewidth=1,alpha=options.alpha,ms=float(options.point_size))
-#ax.scatter(X,Y,s=options.point_size,color=options.color)
+    ax.plot(X,Y,
+            options.line_style,
+            markeredgecolor=options.markeredgecolor,
+            markerfacecolor=options.markerfacecolor,
+            linewidth=1,
+            alpha=options.alpha,
+            ms=float(options.point_size))
 
-#print X
-#print Y
-#ax.errorbar(X, Y, yerr=E, fmt='-o', color=options.color)
 if len(E)!=0:
     ax.errorbar(X,Y,yerr=E, linestyle="None", color='gray')
 
@@ -189,9 +240,10 @@ if ((options.max_y) and (options.min_y)):
 if ((options.max_x) and (options.min_x)):
     ax.set_xlim(float(options.min_x),float(options.max_x))
 
-#if len(X) != 0:
-#    ax.set_xticks([float(x) for x in X])
-#    #ax.set_xticklabels
+if options.noxtick_labels:
+    ax.set_xticklabels([])
+if options.noytick_labels:
+    ax.set_yticklabels([])
 
 if options.x_label:
     ax.set_xlabel(options.x_label)
@@ -205,22 +257,35 @@ if options.title:
 if options.trend:
     z = np.polyfit(X, Y, 1)
     p = np.poly1d(z)
-    ax.plot(X,p(Y),'r--',color='red')
+    ax.plot(X,p(Y),'r--',color='black')
 
 
 if options.axhline:
     for hv in [float(x) for x in options.axhline.split(",")]:
         print hv
-        ax.axhline(y=hv, color='r')
+        ax.axhline(y=hv, lw=1, color='black')
 
 if options.axvline:
     for hv in [float(x) for x in options.axvline.split(",")]:
         ax.avhline(x=hv, color='r')
 
+if options.xticks:
+    matplotlib.pyplot.locator_params(axis = 'x', nbins = int(len(options.xticks.split(','))))
+    ax.set_xticklabels(options.xticks.split(','), rotation=options.xrotation)
+
+if options.ref_lines:
+    for slope,intercept,style,color,weight in [x.split(':') for x in options.ref_lines.split(',')]:
+        x_vals = np.array(ax.get_xlim())
+        y_vals = float(intercept) + float(slope) * x_vals
+        ax.plot(x_vals, y_vals, style, c=color, lw=float(weight))
+
+if options.noxticks:
+    ax.tick_params(axis='x', which='both',length=0)
+
+if options.noyticks:
+    ax.tick_params(axis='y', which='both',length=0)
 
 
-
-#matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
 
 if options.black:
     matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight',\
