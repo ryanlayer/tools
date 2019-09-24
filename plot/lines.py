@@ -18,6 +18,11 @@ parser.add_option("--xticks",
                   dest="xticks",
                   help="CSV of x tick lables")
 
+parser.add_option("--yticks",
+                  dest="yticks",
+                  help="CSV of y tick lables")
+
+
 
 parser.add_option("--numyticks",
                   dest="numyticks",
@@ -273,6 +278,11 @@ if options.numyticks:
 
 if options.xticks:
     ax.set_xticklabels(options.xticks.split(','))
+
+if options.yticks:
+    matplotlib.pyplot.locator_params(axis = 'y', \
+                                     nbins = int(len(options.yticks.split(','))))
+    ax.set_yticklabels(options.yticks.split(','))
 
 if options.black:
     matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight',\
