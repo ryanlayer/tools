@@ -12,17 +12,62 @@ rcParams['font.family'] = 'Arial'
 delim = '\t'
 parser = OptionParser()
 
+parser.add_option("--tick_line_length",
+                  dest="tick_line_length",
+                  type=float,
+                  default=2,
+                  help="Tick line width")
+
+
+parser.add_option("--tick_line_width",
+                  dest="tick_line_width",
+                  type=float,
+                  default=0.5,
+                  help="Tick line width")
+
+parser.add_option("--axis_line_width",
+                  dest="axis_line_width",
+                  type=float,
+                  default=0.5,
+                  help="Axis line width")
+
+parser.add_option("--axis_label_size",
+                  dest="axis_label_size",
+                  type=int,
+                  default=8,
+                  help="Axis label font size")
+
+parser.add_option("--tick_label_size",
+                  dest="tick_label_size",
+                  type=int,
+                  default=8,
+                  help="Axis tick label font size")
+
+
+parser.add_option("--noxline",
+                  dest="noxline",
+                  action="store_true", 
+                  default=False,
+                  help="No X axsis line")
+
+parser.add_option("--noyline",
+                  dest="noyline",
+                  action="store_true", 
+                  default=False,
+                  help="No Y axsis line")
+
+
 parser.add_option("--noxticks",
                   dest="noxticks",
                   action="store_true", 
                   default=False,
-                  help="No X axsis line")
+                  help="No X axsis ticks")
 
 parser.add_option("--noyticks",
                   dest="noyticks",
                   action="store_true", 
                   default=False,
-                  help="No Y axsis line")
+                  help="No Y axsis ticks")
 
 parser.add_option("--noxtick_labels",
                   dest="noxtick_labels",
@@ -52,6 +97,11 @@ parser.add_option("-l",
                   action="store_true", dest="logy", default=False,
                   help="Use log scale for y-axis")
 
+parser.add_option( "--log_x",
+                  action="store_true", dest="logx", default=False,
+                  help="Use log scale for x-axis")
+
+
 parser.add_option("-a",
                   "--alpha",
                   dest="alpha",
@@ -66,7 +116,7 @@ parser.add_option("-o",
 
 parser.add_option("--title",
                   dest="title",
-                  help="Plot title")
+                  help="Plot title (title or title;size;location)")
 
 
 parser.add_option("--x_label",
@@ -192,7 +242,7 @@ fig.subplots_adjust(wspace=.05,left=.01,bottom=.01)
 #ax = fig.add_subplot(1,1,1)
 ax = 1
 if options.black:
-    ax = fig.add_subplot(1,1,1,axisbg='k')
+    ax = fig.add_subplot(1,1,1,facecolor='black')
 else:
     ax = fig.add_subplot(1,1,1)
 
@@ -210,29 +260,46 @@ if options.black:
 ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 
+ax.spines['bottom'].set_linewidth(options.axis_line_width)
+ax.spines['left'].set_linewidth(options.axis_line_width)
+
+p = None
 if len(X) == 0:
-    ax.plot(range(len(Y)),
-            Y,
-            options.line_style,
-            markeredgecolor=options.markeredgecolor,
-            markerfacecolor=options.markerfacecolor,
-            s=1,
-            linewidth=1)
+    p = ax.plot(range(len(Y)),
+                Y,
+                options.line_style,
+                markeredgecolor=options.markeredgecolor,
+                markerfacecolor=options.markerfacecolor,
+                linewidth=1)
+elif len(E) == 0:
+    p = ax.plot(X,Y,
+                options.line_style,
+                markeredgecolor=options.markeredgecolor,
+                markerfacecolor=options.markerfacecolor,
+                linewidth=1,
+                alpha=options.alpha,
+                ms=float(options.point_size))
 else:
-    ax.plot(X,Y,
-            options.line_style,
-            markeredgecolor=options.markeredgecolor,
-            markerfacecolor=options.markerfacecolor,
-            linewidth=1,
-            alpha=options.alpha,
-            ms=float(options.point_size))
+    p = ax.scatter(X, Y,
+                   s=E,
+                   alpha=options.alpha)
+    #handles, labels = p.legend_elements(prop="sizes", alpha=0.6)
+    #legend = ax.legend(handles, 
+                       #labels,
+                       #loc="upper right",
+                       #title="Sizes")
 
-if len(E)!=0:
-    ax.errorbar(X,Y,yerr=E, linestyle="None", color='gray')
 
+
+
+#if len(E)!=0:
+    #ax.errorbar(X,Y,yerr=E, linestyle="None", color='gray')
 
 if options.logy:
     ax.set_yscale('log')
+
+if options.logx:
+    ax.set_xscale('log')
 
 if ((options.max_y) and (options.min_y)):
     ax.set_ylim(float(options.min_y),float(options.max_y))
@@ -246,14 +313,19 @@ if options.noytick_labels:
     ax.set_yticklabels([])
 
 if options.x_label:
-    ax.set_xlabel(options.x_label)
+    ax.set_xlabel(options.x_label, fontsize=options.axis_label_size)
 
 if options.y_label:
-    ax.set_ylabel(options.y_label)
+    ax.set_ylabel(options.y_label, fontsize=options.axis_label_size)
 
 if options.title:
-    ax.set_title(options.title)
-
+    if ';' in options.title:
+        text, size, loc = options.title.split(';')
+        fontdict = {'fontsize':int(size)}
+        ax.set_title(text, fontdict=fontdict, loc=loc)
+    else:
+        ax.set_title(options.title)
+        
 if options.trend:
     z = np.polyfit(X, Y, 1)
     p = np.poly1d(z)
@@ -262,12 +334,11 @@ if options.trend:
 
 if options.axhline:
     for hv in [float(x) for x in options.axhline.split(",")]:
-        print hv
-        ax.axhline(y=hv, lw=1, color='black')
+        ax.axhline(y=hv, lw=0.5, color='black')
 
 if options.axvline:
     for hv in [float(x) for x in options.axvline.split(",")]:
-        ax.avhline(x=hv, color='r')
+        ax.axvline(x=hv, lw=0.5, color='black')
 
 if options.xticks:
     matplotlib.pyplot.locator_params(axis = 'x', nbins = int(len(options.xticks.split(','))))
@@ -285,8 +356,17 @@ if options.noxticks:
 if options.noyticks:
     ax.tick_params(axis='y', which='both',length=0)
 
+if options.noxline:
+    ax.spines['bottom'].set_visible(False)
 
+if options.noyline:
+    ax.spines['left'].set_visible(False)
 
+ax.tick_params(axis='both',
+               which='major',
+               labelsize=options.axis_label_size,
+               width=options.tick_line_width,
+               length=options.tick_line_length)
 if options.black:
     matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight',\
             facecolor=fig.get_facecolor(),\
