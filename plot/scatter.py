@@ -18,7 +18,6 @@ parser.add_option("--tick_line_length",
                   default=2,
                   help="Tick line width")
 
-
 parser.add_option("--tick_line_width",
                   dest="tick_line_width",
                   type=float,
@@ -42,7 +41,6 @@ parser.add_option("--tick_label_size",
                   type=int,
                   default=8,
                   help="Axis tick label font size")
-
 
 parser.add_option("--noxline",
                   dest="noxline",
