@@ -6,10 +6,61 @@ import pylab
 import random
 from optparse import OptionParser
 
+
 from matplotlib import rcParams
 rcParams['font.family'] = 'Arial'
 
 parser = OptionParser()
+
+parser.add_option("--tick_line_length",
+                  dest="tick_line_length",
+                  type=float,
+                  default=2,
+                  help="Tick line width")
+
+parser.add_option("--tick_line_width",
+                  dest="tick_line_width",
+                  type=float,
+                  default=0.5,
+                  help="Tick line width")
+
+parser.add_option("--axis_line_width",
+                  dest="axis_line_width",
+                  type=float,
+                  default=0.5,
+                  help="Axis line width")
+
+parser.add_option("--axis_label_size",
+                  dest="axis_label_size",
+                  type=int,
+                  default=8,
+                  help="Axis label font size")
+
+parser.add_option("--tick_label_size",
+                  dest="tick_label_size",
+                  type=int,
+                  default=8,
+                  help="Axis tick label font size")
+
+parser.add_option("--density",
+                  dest="density",
+                  action="store_true",default=False,
+                  help="Plot density")
+
+
+
+parser.add_option("--xticks",
+                  dest="xticks",
+                  help="CSV ints to tick and label")
+
+parser.add_option("--xtick_names",
+                  dest="xtick_names",
+                  help="CSV of xtick lables")
+
+
+parser.add_option("--numyticks",
+                  dest="numyticks",
+                  help="Number of Y ticks")
 
 parser.add_option("-t",
                   "--title",
@@ -34,9 +85,8 @@ parser.add_option("-o",
 parser.add_option("-b",
                   "--bins",
                   dest="bins",
-                  type="int",
                   default=10,
-                  help="Number of fins")
+                  help="Number of bins or csv of bins")
 
 parser.add_option("--x_max",
                   dest="max_x",
@@ -60,6 +110,10 @@ parser.add_option("--y_min",
                   type="float",
                   help="Min y value")
 
+parser.add_option("--color",
+                  dest="color",
+                  default=None,
+                  help="Bar color")
 
 parser.add_option("-c",
                   "--column",
@@ -78,7 +132,14 @@ parser.add_option("-l",
                   "--ylog",
                   action="store_true",default=False,
                   dest="ylog",
-                  help="Field delimiter")
+                  help="Set y-axis to be log scale")
+
+parser.add_option("--xlog",
+                  action="store_true",default=False,
+                  dest="xlog",
+                  help="Set x-axis to be log scale")
+
+
 
 parser.add_option("--x_sci",
                   action="store_true",default=False,
@@ -92,13 +153,13 @@ parser.add_option("--y_sci",
 
 parser.add_option("--width",
                   dest="width",
-                  type="int",
+                  type="float",
                   default=5,
                   help="Figure width")
 
 parser.add_option("--height",
                   dest="height",
-                  type="int",
+                  type="float",
                   default=5,
                   help="Figure height")
 
@@ -148,16 +209,36 @@ if options.max_x:
 if options.min_x:
     x_min = options.min_x
 
-#ax = fig.add_subplot(1,1,1)
 if options.black:
-    ax = fig.add_subplot(1,1,1,axisbg='k')
+    ax = fig.add_subplot(1,1,1,facecolor='k')
 else:
     ax = fig.add_subplot(1,1,1)
 
+bins = None
+if ',' in str(options.bins):
+    bins = [int(x) for x in options.bins.split(',')]
+else:
+    bins = int(options.bins)
 
+h = ax.hist(Y, \
+            bins,
+            density=options.density,
+            log=options.ylog, \
+            histtype='bar', \
+            rwidth=0.8, \
+            align='left', \
+            color=options.color)
 
-ax.hist(Y,options.bins,log=options.ylog,align='mid',\
-        histtype='bar', rwidth=1)
+print(h)
+
+if options.xlog:
+    ax.set_xscale('log')
+
+#labels, counts = np.unique(Y, return_counts=True)
+#print labels
+#ax.bar(labels, counts, align='center')
+#plt.gca().set_xticks(labels)
+
 
 if options.max_x:
     ax.set_xlim(xmax=options.max_x)
@@ -167,8 +248,6 @@ if options.max_y:
     ax.set_ylim(ymax=options.max_y)
 if options.min_y:
     ax.set_ylim(ymin=options.min_y)
-
-#ax.set_ylim([0,10])
 
 if options.x_sci:
     formatter = matplotlib.ticker.ScalarFormatter()
@@ -180,34 +259,40 @@ if options.y_sci:
     formatter.set_powerlimits((-2,2))
     ax.yaxis.set_major_formatter(formatter)
 
-
-    #ax.plot(range(len(Y)),Y,options.line_style,color='black', linewidth=1)
-#else:
-    #ax.plot(X,Y,options.line_style,color='black', linewidth=1)
-
-#if options.logy:
-    #ax.set_yscale('log')
-
-#if ((options.max_y) and (options.min_y)):
-    #ax.set_ylim(float(options.min_y),float(options.max_y))
-
-#if len(X) != 0:
-    #ax.set_xticks([float(x) for x in X])
-    #ax.set_xticklabels
-
 if options.xlabel:
-    ax.set_xlabel(options.xlabel)
+    ax.set_xlabel(options.xlabel, fontsize=options.axis_label_size)
 
 if options.ylabel:
-    ax.set_ylabel(options.ylabel)
+    ax.set_ylabel(options.ylabel, fontsize=options.axis_label_size)
 
 if options.title:
     ax.set_title(options.title)
 
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(True)
 ax.xaxis.set_ticks_position('bottom')
 ax.yaxis.set_ticks_position('left')
+
+if options.xticks:
+    xticks = [int(x) for x in options.xticks.split(',')]
+    xmajorlocator = matplotlib.ticker.FixedLocator(xticks)
+    ax.xaxis.set_major_locator(xmajorlocator)
+
+if options.xtick_names:
+    xtick_locs = []
+    xtick_names = []
+
+    i = 0
+    for xtick_name in options.xtick_names.split(','):
+        if xtick_name != '':
+            xtick_locs.append(i)
+            xtick_names.append(xtick_name)
+        i+=1
+
+    xmajorlocator = matplotlib.ticker.FixedLocator(xtick_locs)
+    ax.xaxis.set_major_locator(xmajorlocator)
+    ax.set_xticklabels(xtick_names)
 
 if options.black:
     ax.spines['bottom'].set_color('white')
@@ -218,9 +303,16 @@ if options.black:
     ax.tick_params(axis='x', colors='white')
     ax.tick_params(axis='y', colors='white')
 
+ax.tick_params(axis='both',
+               which='major',
+               labelsize=options.axis_label_size,
+               width=options.tick_line_width,
+               length=options.tick_line_length)
+
+ax.spines['bottom'].set_linewidth(options.axis_line_width)
+ax.spines['left'].set_linewidth(options.axis_line_width)
 
 
-#matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
 if options.black:
     matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight',\
             facecolor=fig.get_facecolor(),\
