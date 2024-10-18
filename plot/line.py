@@ -1,83 +1,38 @@
 #!/usr/bin/env python
 import sys
-import numpy as np
-import matplotlib
-import pylab
-import random
-from optparse import OptionParser
+import argparse
+import matplotlib.pyplot as plt
+import plot_helper
 
-delim = '\t'
-parser = OptionParser()
+def get_args():
+    parser = argparse.ArgumentParser(description='Plot a line graph')
 
-parser.add_option("-o",
-                  "--output_file",
-                  dest="output_file",
-                  help="Data file")
+    plot_helper.add_plot_args(parser)
 
-parser.add_option("-l",
-                  "--legend",
-                  dest="legend",
-                  help="Comma sperated legend")
+    parser.add_argument("--line_color",
+                        default="black",
+                        help="Line color")
 
-parser.add_option("-t",
-                  "--title",
-                  dest="title",
-                  help="Title")
+    return parser.parse_args()
 
-parser.add_option("-x",
-                  "--xlabel",
-                  dest="xlabel",
-                  help="X axis label")
+def main():
+    args = get_args()
 
-parser.add_option("-y",
-                  "--ylabel",
-                  dest="ylabel",
-                  help="Y axis label")
+    fig, ax = plt.subplots(figsize=(args.width, args.height))
 
-parser.add_option( "--ylog",
-                  action="store_true", 
-                  default=False,
-                  dest="ylog",
-                  help="Y axis log")
+    X = []
+    Y = []
+    for l in sys.stdin:
+        x,y = [float(x) for x in l.rstrip().split()]
+        X.append(x)
+        Y.append(y)
 
+    ax.plot(X, Y, color=args.line_color)
 
+    plot_helper.format_ax(ax, args)
 
-(options, args) = parser.parse_args()
-if not options.output_file:
-    parser.error('Output file not given')
+    plt.tight_layout()
+    plt.savefig(args.output_file, transparent=args.transparent, dpi=300)
 
-matplotlib.rcParams.update({'font.size': 12})
-fig = matplotlib.pyplot.figure(figsize=(5,5),dpi=300)
-#fig.subplots_adjust(top=1.0)
-
-ax = fig.add_subplot(1,1,1)
-
-
-color_i = 0
-plts=[]
-X = []
-Y = []
-for l in sys.stdin:
-    x,y = [float(x) for x in l.rstrip().split()]
-    X.append(X)
-    Y.append(y)
-
-print len(X), len(Y)
-p, = ax.plot(X,Y,'-o',linewidth=1)
-
-if options.ylog:
-    ax.set_yscale('log')
-
-if options.legend:
-    ax.legend(plts, options.legend.split(","))
-
-if options.title:
-    matplotlib.pyplot.suptitle(options.title)
-
-if options.xlabel:
-    ax.set_xlabel(options.xlabel)
-
-if options.ylabel:
-    ax.set_ylabel(options.ylabel)
-#ax.legend()
-matplotlib.pyplot.savefig(options.output_file,bbox_inches='tight')
+if __name__ == '__main__':
+    main()
